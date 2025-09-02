@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Paleta de colores Accesible y Calmada 
+  - Primario: Un azul confiable y claro.
+  - Secundario: Un gris azulado suave para elementos de fondo.
+  - Éxito/Advertencia: Colores claros para estados (verde y ámbar).
+  - Contraste mejorado para legibilidad.
+*/
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;      /* Gris azulado muy claro */
+    --foreground: 215 28% 17%;      /* Azul oscuro/gris para texto */
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 28% 17%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 28% 17%;
+
+    --primary: 217 91% 60%;         /* Azul principal vibrante pero accesible */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 20% 94%;       /* Gris claro para acentos sutiles */
+    --secondary-foreground: 215 28% 17%;
+
+    --muted: 210 20% 94%;
+    --muted-foreground: 215 20% 45%;
+
+    --accent: 210 20% 94%;
+    --accent-foreground: 215 28% 17%;
+
+    --destructive: 0 72% 51%;         /* Rojo claro para errores */
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%;          /* Verde para estados de éxito */
+    --success-foreground: 0 0% 100%;
+
+    --warning: 45 93% 47%;          /* Ámbar para advertencias */
+    --warning-foreground: 215 28% 17%;
+
+    --border: 210 20% 87%;
+    --input: 210 20% 87%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.5rem;
+
+    /* Colores para gráficos */
+    --chart-1: 217 91% 60%; /* Azul (Primario) */
+    --chart-2: 160 84% 39%; /* Verde Teal */
+    --chart-3: 30 96% 54%;  /* Naranja */
+    --chart-4: 260 88% 66%; /* Púrpura */
+    --chart-5: 340 82% 60%; /* Rosa */
+  }
+
+  .dark {
+    --background: 215 28% 17%;      /* Fondo azul oscuro */
+    --foreground: 210 20% 98%;      /* Texto casi blanco */
+
+    --card: 215 28% 19%;           /* Un poco más claro que el fondo */
+    --card-foreground: 210 20% 98%;
+
+    --popover: 215 28% 17%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 217 91% 60%;         /* El azul principal se mantiene vibrante */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 28% 23%;       /* Gris oscuro para acentos */
+    --secondary-foreground: 210 20% 98%;
+
+    --muted: 215 28% 23%;
+    --muted-foreground: 210 20% 65%;
+
+    --accent: 215 28% 23%;
+    --accent-foreground: 210 20% 98%;
+
+    --destructive: 0 63% 51%;         /* Rojo más brillante en modo oscuro */
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 45 93% 47%;
+    --warning-foreground: 215 28% 17%;
+
+    --border: 215 28% 25%;
+    --input: 215 28% 25%;
+    --ring: 217 91% 60%;
+
+    /* Colores para gráficos en modo oscuro */
+    --chart-1: 217 91% 60%;
+    --chart-2: 160 84% 39%;
+    --chart-3: 30 96% 54%;
+    --chart-4: 260 88% 66%;
+    --chart-5: 340 82% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Clases para estados, ahora usan las variables del tema */
+  .status-badge-active {
+    @apply bg-success/20 text-success-foreground px-2 py-1 rounded-full text-xs font-medium;
+    color: hsl(var(--success));
+    background-color: hsl(var(--success) / 0.15);
+  }
+
+  .status-badge-pending {
+    @apply px-2 py-1 rounded-full text-xs font-medium;
+    color: hsl(var(--warning-foreground));
+    background-color: hsl(var(--warning) / 0.20);
+  }
+
+  .status-badge-closed {
+    @apply bg-muted text-muted-foreground px-2 py-1 rounded-full text-xs font-medium;
+  }
+}
