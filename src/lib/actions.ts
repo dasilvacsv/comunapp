@@ -206,8 +206,8 @@ export async function getReportData(filters?: { status?: string, priority?: stri
   const { status, priority } = filters || {};
 
   const whereClause = and(
-    status ? eq(requests.status, status) : undefined,
-    priority ? eq(requests.priority, priority) : undefined
+    status ? eq(requests.status, status as 'Pendiente' | 'Aprobada' | 'Rechazada' | 'Entregada') : undefined,
+    priority ? eq(requests.priority, priority as 'Baja' | 'Media' | 'Alta' | 'Urgente') : undefined
   );
   
   const [

@@ -95,6 +95,8 @@ export default function NuevaSolicitudPage() {
     loadBeneficiaries();
   }, []);
 
+  type CreateRequestResult = { error?: string } | undefined;
+
   const handleFormSubmit = async (formData: FormData) => {
     setError(null);
     if (!selectedBeneficiaryId) {
@@ -106,7 +108,7 @@ export default function NuevaSolicitudPage() {
     // La descripción ya está en el FormData gracias al `name` del Textarea
 
     startTransition(async () => {
-      const result = await createRequest(formData);
+      const result = await createRequest(formData) as CreateRequestResult;
       if (result?.error) {
         setError(result.error);
       }

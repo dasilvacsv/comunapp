@@ -232,9 +232,40 @@ const IncredibleHeader = ({ onLoginClick }: { onLoginClick: () => void }) => {
 
 
 // --- Componente para las notificaciones (Visual) ---
-const FloatingNotification = ({ icon, title, text, position, delay = 0 }) => {
+type FloatingNotificationProps = {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  text: string;
+  position: string;
+  delay?: number;
+};
+
+const FloatingNotification = ({
+  icon,
+  title,
+  text,
+  position,
+  delay = 0,
+}: FloatingNotificationProps) => {
   const Icon = icon;
-  return (<motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.8, delay: delay, ease: [0.25, 1, 0.5, 1] }} className={`absolute ${position} z-20 hidden md:block`}><div className="flex items-center gap-3 bg-white/70 backdrop-blur-lg p-3 rounded-2xl shadow-xl border border-white/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 ease-out"><div className="bg-blue-500 text-white p-2 rounded-lg"><Icon className="h-5 w-5" /></div><div><p className="font-bold text-sm text-gray-800">{title}</p><p className="text-xs text-gray-600">{text}</p></div></div></motion.div>);
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8, y: 50 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: delay, ease: [0.25, 1, 0.5, 1] }}
+      className={`absolute ${position} z-20 hidden md:block`}
+    >
+      <div className="flex items-center gap-3 bg-white/70 backdrop-blur-lg p-3 rounded-2xl shadow-xl border border-white/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 ease-out">
+        <div className="bg-blue-500 text-white p-2 rounded-lg">
+          <Icon className="h-5 w-5" />
+        </div>
+        <div>
+          <p className="font-bold text-sm text-gray-800">{title}</p>
+          <p className="text-xs text-gray-600">{text}</p>
+        </div>
+      </div>
+    </motion.div>
+  );
 };
 
 

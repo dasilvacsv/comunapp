@@ -39,6 +39,15 @@ const beneficiarySchema = z.object({
 type BeneficiaryFormValues = z.infer<typeof beneficiarySchema>;
 
 // --- 2. Propiedades del Componente ---
+// Define the Beneficiary type or import it from the appropriate module
+type Beneficiary = {
+  id: string;
+  fullName: string;
+  birthDate?: string | null;
+  disabilityType?: string | null;
+  notes?: string | null;
+};
+
 interface EditFormProps {
   beneficiary: Beneficiary;
 }
@@ -71,9 +80,16 @@ export function EditForm({ beneficiary }: EditFormProps) {
       ...data,
       disabilityType: data.disabilityType === 'ninguno' ? null : data.disabilityType,
     };
-    
+
+    // Convierte processedData a FormData
+    const formData = new FormData();
+    formData.append('fullName', processedData.fullName);
+    formData.append('disabilityType', processedData.disabilityType ?? 'ninguno');
+    formData.append('notes', processedData.notes ?? '');
+    formData.append('birthDate', processedData.birthDate ? processedData.birthDate.toISOString().split('T')[0] : '');
+
     try {
-      await updateBeneficiary(beneficiary.id, processedData);
+      await updateBeneficiary(beneficiary.id, formData);
       setIsSuccess(true);
       setTimeout(() => setIsSuccess(false), 4000);
     } catch (error) {

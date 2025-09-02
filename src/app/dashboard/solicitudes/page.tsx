@@ -37,14 +37,14 @@ type Request = {
   beneficiaryId: string | null;
 };
 
-const STATUS_OPTIONS: { value: RequestStatus; label: string; icon: React.FC<React.SVGProps<SVGSVGElement>>; className: string; }[] = [
+const STATUS_OPTIONS: { value: RequestStatus; label: string; icon: React.ElementType; className: string; }[] = [
   { value: 'Pendiente', label: 'Pendiente', icon: Clock, className: 'border-yellow-400 text-yellow-800 bg-yellow-100/60' },
   { value: 'Aprobada', label: 'Aprobada', icon: CheckCircle, className: 'border-green-400 text-green-800 bg-green-100/60' },
   { value: 'Rechazada', label: 'Rechazada', icon: XCircle, className: 'border-red-400 text-red-800 bg-red-100/60' },
   { value: 'Entregada', label: 'Entregada', icon: Package, className: 'border-blue-400 text-blue-800 bg-blue-100/60' },
 ];
 
-const PRIORITY_OPTIONS: { value: RequestPriority; label: string; icon: React.FC<React.SVGProps<SVGSVGElement>>; className: string; }[] = [
+const PRIORITY_OPTIONS: { value: RequestPriority; label: string; icon: React.ElementType; className: string; }[] = [
   { value: 'Baja', label: 'Baja', icon: TrendingDown, className: 'bg-green-100 text-green-800' },
   { value: 'Media', label: 'Media', icon: TrendingUp, className: 'bg-yellow-100 text-yellow-800' },
   { value: 'Alta', label: 'Alta', icon: AlertCircle, className: 'bg-orange-100 text-orange-800' },

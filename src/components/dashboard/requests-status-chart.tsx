@@ -42,7 +42,12 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function RequestsStatusChart({ data, totalRequests }) {
+type RequestsStatusChartProps = {
+  data: { name: string; value: number }[];
+  totalRequests: number;
+};
+
+export function RequestsStatusChart({ data, totalRequests }: RequestsStatusChartProps) {
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-48">

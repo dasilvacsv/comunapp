@@ -79,7 +79,27 @@ async function getDashboardData() {
   };
 }
 
-function StatCard({ title, value, icon: Icon, description, colorClass, bgColorClass, actionLink, actionText }) {
+interface StatCardProps {
+  title: string;
+  value: number | string;
+  icon: React.ElementType;
+  description: string;
+  colorClass: string;
+  bgColorClass: string;
+  actionLink?: string;
+  actionText?: string;
+}
+
+function StatCard({
+  title,
+  value,
+  icon: Icon,
+  description,
+  colorClass,
+  bgColorClass,
+  actionLink,
+  actionText,
+}: StatCardProps) {
   return (
     <Card className="hover:shadow-lg transition-shadow duration-300">
       <CardHeader>

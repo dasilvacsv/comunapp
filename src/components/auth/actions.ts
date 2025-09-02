@@ -34,7 +34,7 @@ export async function signup(values: z.infer<typeof SignupSchema>) {
   try {
     // 2. Comprobar si el email ya existe en la base de datos
     const existingUser = await db.query.users.findFirst({
-      where: eq(users.email, email),
+      where: eq(users.username, email),
     });
 
     if (existingUser) {
@@ -46,9 +46,9 @@ export async function signup(values: z.infer<typeof SignupSchema>) {
 
     // 4. Insertar el nuevo usuario en la base de datos
     await db.insert(users).values({
-      name,
+      username: name,
       email,
-      password: hashedPassword,
+      passwordHash: hashedPassword,
     });
 
     return { success: "¡Registro exitoso! Ahora puedes iniciar sesión." };

@@ -41,7 +41,7 @@ const PRIORITY_OPTIONS = ['Baja', 'Media', 'Alta', 'Urgente'];
 
 // --- UTILIDADES DE ESTILO (PARA LA UI) ---
 
-const getStatusAppearance = (status) => {
+const getStatusAppearance = (status: string) => {
   switch (status) {
     case 'Pendiente': return { className: 'border-yellow-300 bg-yellow-50 text-yellow-800', icon: <Clock className="h-4 w-4 text-yellow-500" /> };
     case 'Aprobada': return { className: 'border-green-300 bg-green-50 text-green-800', icon: <CheckCircle className="h-4 w-4 text-green-500" /> };
@@ -51,7 +51,7 @@ const getStatusAppearance = (status) => {
   }
 };
 
-const getPriorityAppearance = (priority) => {
+const getPriorityAppearance = (priority: string) => {
   switch (priority) {
     case 'Urgente': return 'border-red-300 bg-red-50 text-red-800';
     case 'Alta': return 'border-orange-300 bg-orange-50 text-orange-800';
@@ -134,7 +134,6 @@ const pdfStyles = StyleSheet.create({
     fontWeight: 'bold',
   },
   table: {
-    display: 'table',
     width: 'auto',
     borderStyle: 'solid',
     borderWidth: 1,
@@ -172,9 +171,22 @@ const pdfStyles = StyleSheet.create({
   },
 });
 
-const ReportePDF = ({ data }) => {
+type ReportePDFData = {
+  totalBeneficiaries: number;
+  totalRequests: number;
+  requestsByStatus: { status: string; count: number }[];
+  recentRequests: {
+    id: string | number;
+    description: string;
+    beneficiaryName: string;
+    status: string;
+    createdAt: string | Date;
+  }[];
+};
+
+const ReportePDF = ({ data }: { data: ReportePDFData }) => {
   const { totalBeneficiaries, totalRequests, requestsByStatus, recentRequests } = data;
-  const approvalRate = totalRequests > 0 ? Math.round((requestsByStatus.find(s => s.status === 'Aprobada')?.count || 0) / totalRequests * 100) : 0;
+  const approvalRate = totalRequests > 0 ? Math.round((requestsByStatus.find((s: { status: string; count: number }) => s.status === 'Aprobada')?.count || 0) / totalRequests * 100) : 0;
 
   return (
     <Document>
@@ -206,13 +218,18 @@ const ReportePDF = ({ data }) => {
               <Text style={{ width: '30%', textAlign: 'right' }}>Cantidad</Text>
               <Text style={{ width: '30%', textAlign: 'right' }}>Porcentaje</Text>
             </View>
-            {requestsByStatus.map((item, index) => (
-              <View style={[pdfStyles.tableRow, index % 2 === 1 && pdfStyles.tableRowStriped]} key={index}>
-                <Text style={[pdfStyles.tableCol, { width: '40%' }]}>{item.status}</Text>
-                <Text style={[pdfStyles.tableCol, { width: '30%', textAlign: 'right' }]}>{item.count}</Text>
-                <Text style={[pdfStyles.tableCol, { width: '30%', textAlign: 'right' }]}>{(item.count / totalRequests * 100).toFixed(1)}%</Text>
-              </View>
-            ))}
+            {requestsByStatus.map((item, index) => {
+              const rowStyle = index % 2 === 1
+                ? [pdfStyles.tableRow, pdfStyles.tableRowStriped]
+                : [pdfStyles.tableRow];
+              return (
+                <View style={rowStyle} key={index}>
+                  <Text style={[pdfStyles.tableCol, { width: '40%' }]}>{item.status}</Text>
+                  <Text style={[pdfStyles.tableCol, { width: '30%', textAlign: 'right' }]}>{item.count}</Text>
+                  <Text style={[pdfStyles.tableCol, { width: '30%', textAlign: 'right' }]}>{(item.count / totalRequests * 100).toFixed(1)}%</Text>
+                </View>
+              );
+            })}
           </View>
         </View>
         
@@ -226,7 +243,7 @@ const ReportePDF = ({ data }) => {
                 <Text style={{ width: '20%' }}>Fecha</Text>
             </View>
             {recentRequests.slice(0, 10).map((req, index) => (
-               <View style={[pdfStyles.tableRow, index % 2 === 1 && pdfStyles.tableRowStriped]} key={req.id}>
+               <View style={index % 2 === 1 ? [pdfStyles.tableRow, pdfStyles.tableRowStriped] : [pdfStyles.tableRow]} key={req.id}>
                 <Text style={[pdfStyles.tableCol, { width: '40%' }]}>{req.description}</Text>
                 <Text style={[pdfStyles.tableCol, { width: '25%' }]}>{req.beneficiaryName}</Text>
                 <Text style={[pdfStyles.tableCol, { width: '15%' }]}>{req.status}</Text>
@@ -248,7 +265,15 @@ const ReportePDF = ({ data }) => {
 
 // --- COMPONENTES DE UI ---
 
-const StatCard = ({ title, value, description, icon, iconColor = 'text-gray-500' }) => (
+type StatCardProps = {
+  title: string;
+  value: React.ReactNode;
+  description: string;
+  icon: React.ReactNode;
+  iconColor?: string;
+};
+
+const StatCard = ({ title, value, description, icon, iconColor = 'text-gray-500' }: StatCardProps) => (
   <Card className="transition-transform transform hover:scale-105 hover:shadow-md">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
       <CardTitle className="text-sm font-medium">{title}</CardTitle>
@@ -261,7 +286,12 @@ const StatCard = ({ title, value, description, icon, iconColor = 'text-gray-500'
   </Card>
 );
 
-const EmptyState = ({ icon, message }) => (
+type EmptyStateProps = {
+  icon: React.ReactNode;
+  message: string;
+};
+
+const EmptyState = ({ icon, message }: EmptyStateProps) => (
   <div className="flex flex-col items-center justify-center h-full text-center py-10 text-gray-500">
     <div className="h-10 w-10 mb-2 opacity-50">{icon}</div>
     <p>{message}</p>
@@ -301,10 +331,26 @@ const DashboardSkeleton = () => (
 
 // --- COMPONENTE PRINCIPAL ---
 
+type ReportData = {
+  totalBeneficiaries: number;
+  totalRequests: number;
+  requestsByStatus: { status: "Aprobada" | "Pendiente" | "Rechazada" | "Entregada"; count: number; }[];
+  requestsByPriority: { priority: "Baja" | "Media" | "Alta" | "Urgente"; count: number; }[];
+  recentRequests: {
+    id: string | number;
+    description: string;
+    beneficiaryName: string;
+    status: string;
+    priority: string;
+    createdAt: string | Date;
+  }[];
+  beneficiariesByDisability: { disabilityType: string; count: number }[];
+};
+
 export default function ReportesPage() {
-  const [reportData, setReportData] = useState(null);
+  const [reportData, setReportData] = useState<ReportData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
 
@@ -315,7 +361,23 @@ export default function ReportesPage() {
       try {
         const filters = { status: statusFilter, priority: priorityFilter };
         const data = await getReportData(filters);
-        setReportData(data);
+        // Ensure beneficiaryName is always a string
+        const fixedData = {
+          ...data,
+          recentRequests: Array.isArray(data.recentRequests)
+            ? data.recentRequests.map(req => ({
+                ...req,
+                beneficiaryName: req.beneficiaryName ?? '',
+              }))
+            : [],
+          beneficiariesByDisability: Array.isArray(data.beneficiariesByDisability)
+            ? data.beneficiariesByDisability.map(item => ({
+                ...item,
+                disabilityType: item.disabilityType ?? '',
+              }))
+            : [],
+        };
+        setReportData(fixedData);
       } catch (err) {
         console.error("Error al cargar datos del reporte:", err);
         setError("No se pudieron cargar los datos. Inténtalo de nuevo más tarde.");
@@ -338,14 +400,22 @@ export default function ReportesPage() {
   const memoizedStats = useMemo(() => {
     if (!reportData) return { approvalRate: 0, averageRequests: '0.0', approvedCount: 0 };
     
+    const safeTotalRequests = totalRequests ?? 0;
+    const safeTotalBeneficiaries = totalBeneficiaries ?? 0;
     const approvedCount = requestsByStatus?.find(s => s.status === 'Aprobada')?.count || 0;
-    const approvalRate = totalRequests ? Math.round((approvedCount / totalRequests) * 100) : 0;
-    const averageRequests = totalBeneficiaries ? (totalRequests / totalBeneficiaries).toFixed(1) : '0.0';
+    const approvalRate = safeTotalRequests ? Math.round((approvedCount / safeTotalRequests) * 100) : 0;
+    const averageRequests = safeTotalBeneficiaries ? (safeTotalRequests / safeTotalBeneficiaries).toFixed(1) : '0.0';
 
     return { approvalRate, averageRequests, approvedCount };
   }, [reportData]);
 
-  const CustomTooltip = ({ active, payload }) => {
+  const CustomTooltip = ({
+    active,
+    payload,
+  }: {
+    active?: boolean;
+    payload?: Array<any>;
+  }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       const total = reportData?.totalRequests || 0;
@@ -467,12 +537,12 @@ export default function ReportesPage() {
             <CardDescription>Estado actual de las solicitudes.</CardDescription>
           </CardHeader>
           <CardContent>
-            {requestsByStatus?.length > 0 ? (
+            {(requestsByStatus?.length ?? 0) > 0 ? (
               <div className="h-[250px] w-full">
                 <ResponsiveContainer>
                   <PieChart>
-                    <Pie data={requestsByStatus} dataKey="count" nameKey="status" cx="50%" cy="50%" outerRadius={80} labelLine={false} label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}>
-                      {requestsByStatus.map(entry => <Cell key={entry.status} fill={COLORS_STATUS[entry.status]} />)}
+                    <Pie data={requestsByStatus ?? []} dataKey="count" nameKey="status" cx="50%" cy="50%" outerRadius={80} labelLine={false} label={({ percent }) => `${(percent * 100).toFixed(0)}%`}>
+                      {(requestsByStatus ?? []).map(entry => <Cell key={entry.status} fill={COLORS_STATUS[entry.status]} />)}
                     </Pie>
                     <Tooltip content={<CustomTooltip />} />
                     <Legend iconSize={10} />
@@ -489,15 +559,15 @@ export default function ReportesPage() {
             <CardDescription>Clasificación de urgencia de las solicitudes.</CardDescription>
           </CardHeader>
           <CardContent>
-            {requestsByPriority?.length > 0 ? (
+            {(requestsByPriority ?? []).length > 0 ? (
               <div className="h-[250px] w-full">
                 <ResponsiveContainer>
-                  <BarChart data={requestsByPriority} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                  <BarChart data={requestsByPriority ?? []} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                     <XAxis dataKey="priority" axisLine={false} tickLine={false} fontSize={12} />
                     <YAxis axisLine={false} tickLine={false} fontSize={12} />
                     <Tooltip content={<CustomTooltip />} />
                     <Bar dataKey="count" name="Solicitudes" radius={[4, 4, 0, 0]}>
-                      {requestsByPriority.map(entry => <Cell key={entry.priority} fill={COLORS_PRIORITY[entry.priority]} />)}
+                      {(requestsByPriority ?? []).map(entry => <Cell key={entry.priority} fill={COLORS_PRIORITY[entry.priority]} />)}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
@@ -515,9 +585,9 @@ export default function ReportesPage() {
             <CardDescription>Últimas solicitudes registradas en el sistema.</CardDescription>
           </CardHeader>
           <CardContent>
-            {recentRequests?.length > 0 ? (
+            {(recentRequests ?? []).length > 0 ? (
               <div className="space-y-4">
-                {recentRequests.map(req => {
+                {(recentRequests ?? []).map(req => {
                   const statusInfo = getStatusAppearance(req.status);
                   const priorityClass = getPriorityAppearance(req.priority);
                   return (
@@ -549,7 +619,7 @@ export default function ReportesPage() {
             <CardDescription>Distribución de beneficiarios por tipo de discapacidad.</CardDescription>
           </CardHeader>
           <CardContent>
-            {beneficiariesByDisability?.length > 0 ? (
+            {(beneficiariesByDisability ?? []).length > 0 ? (
               <div className="h-[300px] w-full">
                 <ResponsiveContainer>
                   <BarChart data={beneficiariesByDisability} layout="vertical" margin={{ top: 5, right: 20, left: 30, bottom: 5 }}>
