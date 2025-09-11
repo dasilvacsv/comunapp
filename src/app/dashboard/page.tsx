@@ -31,6 +31,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import {
   FileText, Clock, CheckCircle, XCircle, PackageCheck, PlusCircle, FilePlus, BarChart3,
   PersonStanding, Accessibility, Contact, Inbox, PieChart, Star,
+  Users,
 } from 'lucide-react';
 import { RequestsStatusChart } from '@/components/dashboard/requests-status-chart';
 import { RequestPriorityChart } from '@/components/dashboard/request-priority-chart';
