@@ -10,11 +10,11 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Lock, User, UserPlus, Users2 } from 'lucide-react';
-import { signUp } from '@/lib/actions'; 
+import { Lock, User, Users2, MapPin } from 'lucide-react';
+import { signUp } from '@/lib/actions';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Imágenes del carrusel de la página principal
+// --- Imágenes para el carrusel visual ---
 const carouselImages = [
   '/ejemplo-comunidad-1.jpg',
   '/ejemplo-jornada-social.jpg',
@@ -26,49 +26,56 @@ export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
   const router = useRouter();
-
-  // Estado para el carrusel de imágenes
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Efecto para el carrusel de imágenes
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % carouselImages.length);
-    }, 5000); // Cambia la imagen cada 5 segundos
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
+  // --- Manejador del formulario para Login y Registro ---
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setMessage(null);
 
     const formData = new FormData(e.currentTarget);
-    
+
+    // --- Lógica de Registro ---
     if (isRegisterMode) {
       try {
-        const result = await signUp(formData);
+        const result = await signUp(formData); // Llama a la server action 'signUp'
         if (result.success) {
           setMessage({ type: 'success', text: result.message });
           setTimeout(() => {
-            setIsRegisterMode(false);
+            setIsRegisterMode(false); // Vuelve al formulario de login
             setMessage(null);
-          }, 2000); // Vuelve al login después de 2 segundos
+          }, 3000);
         }
       } catch (error) {
-        setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Error al registrar.' });
+        setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Error desconocido al registrar.' });
       }
+    // --- Lógica de Login ---
     } else {
-      const username = formData.get('username') as string;
+      const nombreUsuario = formData.get('nombreUsuario') as string;
       const password = formData.get('password') as string;
-      const result = await signIn('credentials', { username, password, redirect: false });
+      
+      const result = await signIn('credentials', { 
+        username: nombreUsuario, 
+        password, 
+        redirect: false 
+      });
+
       if (result?.error) {
-        setMessage({ type: 'error', text: 'Credenciales incorrectas. Por favor, intenta de nuevo.' });
+        setMessage({ type: 'error', text: 'Credenciales incorrectas. Verifique sus datos.' });
       } else {
-        router.push('/dashboard');
+        router.push('/dashboard'); // Redirige al panel de control si el login es exitoso
         router.refresh();
       }
     }
-    
     setIsLoading(false);
   };
 
@@ -87,33 +94,40 @@ export default function AuthPage() {
               <Users2 className="h-10 w-10 text-blue-600" />
               <h1 className="text-3xl font-bold text-gray-900">Valle Verde I</h1>
             </Link>
-            <p className="text-gray-600">Portal de Gestión Comunitaria</p>
+            <p className="text-gray-600">Portal de Gestión del Consejo Comunal</p>
           </div>
 
           <Card className="border-0 shadow-none sm:border sm:shadow-lg">
             <CardHeader className="space-y-1 text-center">
               <CardTitle className="text-2xl">
-                {isRegisterMode ? 'Crear una Cuenta' : 'Bienvenido de Vuelta'}
+                {isRegisterMode ? 'Crear Cuenta de Administrador' : 'Bienvenido de Vuelta'}
               </CardTitle>
               <CardDescription>
-                {isRegisterMode ? 'Completa los datos para unirte' : 'Ingresa a tu cuenta para continuar'}
+                {isRegisterMode ? 'Regístrate para obtener acceso administrativo' : 'Ingresa a tu cuenta para continuar'}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 {message && (
-                  <Alert variant={message.type === 'error' ? 'destructive' : 'default'} className={message.type === 'success' ? 'bg-green-100 border-green-200' : ''}>
-                    <AlertDescription className={message.type === 'success' ? 'text-green-800' : ''}>
-                      {message.text}
-                    </AlertDescription>
+                  <Alert variant={message.type === 'error' ? 'destructive' : 'default'}>
+                    <AlertDescription>{message.text}</AlertDescription>
                   </Alert>
                 )}
 
+                {/* --- Campos Comunes --- */}
                 <div className="space-y-2">
-                  <Label htmlFor="username">Usuario</Label>
+                  <Label htmlFor="nombreUsuario">Usuario</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input id="username" name="username" type="text" required className="pl-10" placeholder="tu_usuario" disabled={isLoading} />
+                    <Input
+                      id="nombreUsuario"
+                      name="nombreUsuario"
+                      type="text"
+                      required
+                      className="pl-10"
+                      placeholder="usuario.consejo"
+                      disabled={isLoading}
+                    />
                   </div>
                 </div>
 
@@ -121,24 +135,61 @@ export default function AuthPage() {
                   <Label htmlFor="password">Contraseña</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input id="password" name="password" type="password" required className="pl-10" placeholder="••••••••" disabled={isLoading} />
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      required
+                      className="pl-10"
+                      placeholder="••••••••"
+                      disabled={isLoading}
+                    />
                   </div>
                 </div>
 
+                {/* --- Campos Adicionales solo para Registro --- */}
                 <AnimatePresence>
                   {isRegisterMode && (
                     <motion.div
-                      key="confirmPassword"
+                      key="registerFields"
                       variants={formVariants}
                       initial="hidden"
                       animate="visible"
                       exit="hidden"
-                      className="space-y-2"
+                      className="space-y-4"
                     >
-                      <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <Input id="confirmPassword" name="confirmPassword" type="password" required className="pl-10" placeholder="••••••••" disabled={isLoading} />
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Input
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            type="password"
+                            required
+                            className="pl-10"
+                            placeholder="••••••••"
+                            disabled={isLoading}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="consejoComunal">Consejo Comunal (Opcional)</Label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Input
+                            id="consejoComunal"
+                            name="consejoComunal"
+                            type="text"
+                            className="pl-10"
+                            placeholder="Valle Verde I"
+                            disabled={isLoading}
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Si no se especifica, se asignará a "Valle Verde I" por defecto.
+                        </p>
                       </div>
                     </motion.div>
                   )}
@@ -148,10 +199,16 @@ export default function AuthPage() {
                   {isLoading ? 'Procesando...' : (isRegisterMode ? 'Crear Cuenta' : 'Iniciar Sesión')}
                 </Button>
               </form>
-              
+
+              {/* --- Botón para alternar entre Login y Registro --- */}
               <div className="mt-6 text-center text-sm">
-                {isRegisterMode ? '¿Ya tienes una cuenta?' : '¿Aún no tienes una?'}
-                <Button variant="link" onClick={() => { setIsRegisterMode(!isRegisterMode); setMessage(null); }} className="font-semibold text-blue-600">
+                {isRegisterMode ? '¿Ya tienes una cuenta?' : '¿Necesitas una cuenta de administrador?'}
+                <Button
+                  variant="link"
+                  type="button"
+                  onClick={() => { setIsRegisterMode(!isRegisterMode); setMessage(null); }}
+                  className="font-semibold text-blue-600"
+                >
                   {isRegisterMode ? 'Inicia sesión' : 'Regístrate'}
                 </Button>
               </div>
@@ -173,10 +230,9 @@ export default function AuthPage() {
           >
             <Image
               src={carouselImages[currentImageIndex]}
-              alt="Imágenes de la comunidad de Valle Verde I"
-              layout="fill"
-              objectFit="cover"
-              className="brightness-50"
+              alt="Imágenes de la comunidad"
+              fill
+              className="object-cover brightness-50"
             />
           </motion.div>
         </AnimatePresence>
@@ -184,7 +240,8 @@ export default function AuthPage() {
           <div className="bg-black/40 p-6 rounded-lg backdrop-blur-sm">
             <h2 className="text-3xl font-bold">Unidos por un bien común</h2>
             <p className="mt-2 text-gray-300">
-              Esta plataforma es el corazón digital de nuestra comunidad, un espacio para conectar, organizar y apoyar a quienes más lo necesitan.
+              Esta plataforma es el corazón digital de nuestra comunidad, un espacio para conectar, 
+              organizar y apoyar a quienes más lo necesitan.
             </p>
           </div>
         </div>

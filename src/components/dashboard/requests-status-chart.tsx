@@ -1,95 +1,59 @@
 'use client';
 
-import { TrendingUp } from 'lucide-react';
-import { Pie, PieChart } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartConfig,
-} from '@/components/ui/chart';
-
-// Configuración de colores y etiquetas para el gráfico.
-// Usamos variables CSS para que se adapte al tema (claro/oscuro).
-const chartConfig = {
-  requests: {
-    label: 'Solicitudes',
-  },
-  Pendiente: {
-    label: 'Pendiente',
-    color: 'hsl(var(--chart-1))',
-  },
-  Aprobada: {
-    label: 'Aprobada',
-    color: 'hsl(var(--chart-2))',
-  },
-  Rechazada: {
-    label: 'Rechazada',
-    color: 'hsl(var(--chart-3))',
-  },
-  Entregada: {
-    label: 'Entregada',
-    color: 'hsl(var(--chart-4))',
-  },
-} satisfies ChartConfig;
-
-type RequestsStatusChartProps = {
-  data: { name: string; value: number }[];
-  totalRequests: number;
+const COLORS = {
+  'Pendiente': '#F59E0B',
+  'Aprobada': '#10B981', 
+  'Rechazada': '#EF4444',
+  'Entregada': '#3B82F6',
 };
 
+interface RequestsStatusChartProps {
+  data: Array<{
+    name: string;
+    value: number;
+    fill?: string;
+  }>;
+  totalRequests: number;
+}
+
 export function RequestsStatusChart({ data, totalRequests }: RequestsStatusChartProps) {
-  if (!data || data.length === 0) {
+  if (totalRequests === 0) {
     return (
-      <div className="flex items-center justify-center h-48">
-        <p className="text-sm text-muted-foreground">No hay datos de solicitudes para mostrar.</p>
+      <div className="flex items-center justify-center h-32 text-muted-foreground">
+        <p>No hay solicitudes para mostrar</p>
       </div>
     );
   }
 
   return (
-    <ChartContainer
-      config={chartConfig}
-      className="mx-auto aspect-square h-[250px]"
-    >
-      <PieChart>
-        <ChartTooltip
-          cursor={false}
-          content={<ChartTooltipContent hideLabel />}
-        />
-        <Pie
-          data={data}
-          dataKey="value"
-          nameKey="name"
-          innerRadius="60%"
-          strokeWidth={5}
-        >
-          {/* Label custom en el centro del gráfico */}
-          <text
-            x="50%"
-            y="50%"
-            textAnchor="middle"
-            dominantBaseline="middle"
-            className="fill-foreground"
+    <div className="h-64 w-full" style={{
+      '--color-pending': COLORS.Pendiente,
+      '--color-approved': COLORS.Aprobada,
+      '--color-rejected': COLORS.Rechazada,
+      '--color-delivered': COLORS.Entregada,
+    } as React.CSSProperties}>
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+            outerRadius={80}
+            fill="#8884d8"
+            dataKey="value"
           >
-            <tspan x="50%" dy="-0.6em" className="text-3xl font-bold">
-              {totalRequests}
-            </tspan>
-            <tspan x="50%" dy="1.2em" className="text-xs text-muted-foreground">
-              Total
-            </tspan>
-          </text>
-        </Pie>
-      </PieChart>
-    </ChartContainer>
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS]} />
+            ))}
+          </Pie>
+          <Tooltip />
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
   );
 }

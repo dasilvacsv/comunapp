@@ -1,37 +1,66 @@
-// components/beneficiaries/DeleteButton.tsx
+'use client';
 
-'use client'; // <-- Esto lo convierte en un Componente de Cliente
-
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Trash2 } from 'lucide-react';
 import { deleteBeneficiary } from '@/lib/actions';
 
-// Definimos las props que el componente recibirá
 interface DeleteButtonProps {
   id: string;
   fullName: string;
 }
 
 export function DeleteButton({ id, fullName }: DeleteButtonProps) {
-  // La acción del formulario se pasa como una función que se ejecutará en el servidor
-  const deleteAction = deleteBeneficiary.bind(null, id);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter();
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteBeneficiary(id);
+      router.push('/dashboard/registros');
+      router.refresh();
+    } catch (error) {
+      console.error('Error al eliminar:', error);
+      alert('Error al eliminar el registro');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
-    <form action={deleteAction}>
-      <Button
-        type="submit"
-        variant="outline"
-        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-        // Este onClick ahora es válido porque estamos en un Componente de Cliente
-        onClick={(e) => {
-          if (!confirm(`¿Estás seguro de que quieres eliminar el registro de ${fullName}?`)) {
-            e.preventDefault(); // Cancela el envío del formulario si el usuario dice "No"
-          }
-        }}
-      >
-        <Trash2 className="h-4 w-4 mr-2" />
-        Eliminar
-      </Button>
-    </form>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="destructive" size="sm">
+          <Trash2 className="h-4 w-4 mr-2" />
+          Eliminar
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Esta acción no se puede deshacer. Se eliminará permanentemente el registro de{' '}
+            <strong className="text-gray-900">{fullName}</strong> y todos sus datos asociados.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={handleDelete} 
+            className="bg-red-600 hover:bg-red-700"
+            disabled={isDeleting}
+          >
+            {isDeleting ? 'Eliminando...' : 'Sí, eliminar'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

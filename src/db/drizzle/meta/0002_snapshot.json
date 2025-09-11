@@ -1,6 +1,6 @@
 {
-  "id": "228b64d1-ec0c-40c6-a090-e1c4f35155d4",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "9b30b748-89ee-4fc1-ba8f-51ddd4816486",
+  "prevId": "cce76e47-532c-45c5-8305-65ecd6f74674",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -465,6 +465,117 @@
           "tableTo": "usuarios",
           "columnsFrom": [
             "creado_por_usuario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.solicitudes": {
+      "name": "solicitudes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "descripcion": {
+          "name": "descripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prioridad": {
+          "name": "prioridad",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Media'"
+        },
+        "estado": {
+          "name": "estado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Pendiente'"
+        },
+        "adulto_mayor_id": {
+          "name": "adulto_mayor_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "persona_con_discapacidad_id": {
+          "name": "persona_con_discapacidad_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creada_por_usuario_id": {
+          "name": "creada_por_usuario_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "solicitudes_adulto_mayor_id_adultos_mayores_id_fk": {
+          "name": "solicitudes_adulto_mayor_id_adultos_mayores_id_fk",
+          "tableFrom": "solicitudes",
+          "tableTo": "adultos_mayores",
+          "columnsFrom": [
+            "adulto_mayor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "solicitudes_persona_con_discapacidad_id_personas_con_discapacidad_id_fk": {
+          "name": "solicitudes_persona_con_discapacidad_id_personas_con_discapacidad_id_fk",
+          "tableFrom": "solicitudes",
+          "tableTo": "personas_con_discapacidad",
+          "columnsFrom": [
+            "persona_con_discapacidad_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "solicitudes_creada_por_usuario_id_usuarios_id_fk": {
+          "name": "solicitudes_creada_por_usuario_id_usuarios_id_fk",
+          "tableFrom": "solicitudes",
+          "tableTo": "usuarios",
+          "columnsFrom": [
+            "creada_por_usuario_id"
           ],
           "columnsTo": [
             "id"
